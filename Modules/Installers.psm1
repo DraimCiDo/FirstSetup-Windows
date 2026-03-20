@@ -85,7 +85,7 @@ function Install-WingetPackage {
         [pscustomobject]$Package
     )
 
-    Ensure-WingetAvailable
+    [void](Get-WingetCommand)
 
     $listOutput = & winget list --id $Package.Id --exact --accept-source-agreements --disable-interactivity 2>$null
     if ($LASTEXITCODE -eq 0 -and $listOutput -match [regex]::Escape($Package.Id)) {
@@ -190,7 +190,7 @@ function Update-AllWingetPackages {
     [CmdletBinding()]
     param()
 
-    Ensure-WingetAvailable
+    [void](Get-WingetCommand)
 
     Invoke-LoggedAction -Name "Обновить все пакеты через winget" -Action {
         Invoke-NativeCommand -FilePath "winget" -ArgumentList @(

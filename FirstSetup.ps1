@@ -22,7 +22,9 @@ Import-Module (Join-Path $scriptRoot "Modules\Cooling.psm1") -Force
 Import-Module (Join-Path $scriptRoot "Modules\Backup.psm1") -Force
 Import-Module (Join-Path $scriptRoot "Modules\Storage.psm1") -Force
 
-Assert-RunningAsAdministrator
+if (-not (Test-RunningAsAdministrator)) {
+    throw "Скрипт нужно запускать из PowerShell от имени администратора."
+}
 Initialize-FirstSetupEnvironment -RootPath $scriptRoot
 
 function Show-MainMenu {
@@ -86,118 +88,118 @@ do {
         "1" {
             $configuration = Get-HardwareAdaptiveSetupConfiguration
             Invoke-SetupConfiguration -Configuration $configuration
-            Pause-ForUser
+            Wait-ForUser
         }
         "2" {
             Install-AppProfileInteractive -ProfileName "required"
-            Pause-ForUser
+            Wait-ForUser
         }
         "3" {
             Install-AppProfileInteractive -ProfileName "optional"
-            Pause-ForUser
+            Wait-ForUser
         }
         "4" {
             Install-CustomAppSelection
-            Pause-ForUser
+            Wait-ForUser
         }
         "5" {
             Invoke-WindowsOptimizationPreset
-            Pause-ForUser
+            Wait-ForUser
         }
         "6" {
             Invoke-GamingOptimizationPreset
-            Pause-ForUser
+            Wait-ForUser
         }
         "7" {
             Remove-BloatwareApps
-            Pause-ForUser
+            Wait-ForUser
         }
         "8" {
             Disable-UnneededWindowsComponents
-            Pause-ForUser
+            Wait-ForUser
         }
         "9" {
             Set-GamingMousePreset
-            Pause-ForUser
+            Wait-ForUser
         }
         "10" {
             Set-BluetoothPreset
-            Pause-ForUser
+            Wait-ForUser
         }
         "11" {
             Enable-DeveloperFeatures
-            Pause-ForUser
+            Wait-ForUser
         }
         "12" {
             Set-WindowsAppearancePreset
-            Pause-ForUser
+            Wait-ForUser
         }
         "13" {
             Install-NvidiaApp
-            Pause-ForUser
+            Wait-ForUser
         }
         "14" {
             Set-EdgeDefaultSearchGoogle
-            Pause-ForUser
+            Wait-ForUser
         }
         "15" {
             Set-ConvenienceLoginPreset
-            Pause-ForUser
+            Wait-ForUser
         }
         "16" {
             Invoke-SystemFixesPreset
-            Pause-ForUser
+            Wait-ForUser
         }
         "17" {
             Show-StorageOverview
-            Pause-ForUser
+            Wait-ForUser
         }
         "18" {
             Invoke-StorageOptimizationPreset
-            Pause-ForUser
+            Wait-ForUser
         }
         "19" {
             Invoke-StorageHealthCheck
-            Pause-ForUser
+            Wait-ForUser
         }
         "20" {
             Update-AllWingetPackages
-            Pause-ForUser
+            Wait-ForUser
         }
         "21" {
             Export-SetupConfigTemplate
-            Pause-ForUser
+            Wait-ForUser
         }
         "22" {
             Show-HardwareRecommendations
-            Pause-ForUser
+            Wait-ForUser
         }
         "23" {
             Invoke-DeepCoolDigitalDiagnostics
-            Pause-ForUser
+            Wait-ForUser
         }
         "24" {
             Install-DeepCoolDigitalSoftware
-            Pause-ForUser
+            Wait-ForUser
         }
         "25" {
             $backupConfiguration = Get-BackupConfig
             Invoke-BackupFromConfiguration -Configuration $backupConfiguration
-            Pause-ForUser
+            Wait-ForUser
         }
         "26" {
             $backupConfiguration = Get-BackupConfig
             Invoke-RestoreFromConfiguration -Configuration $backupConfiguration
-            Pause-ForUser
+            Wait-ForUser
         }
         "27" {
             Export-BackupConfigTemplate
-            Pause-ForUser
+            Wait-ForUser
         }
         "28" {
             $configuration = Get-HardwareAdaptiveSetupConfiguration -Path $ConfigPath
             Invoke-SetupConfiguration -Configuration $configuration
-            Pause-ForUser
+            Wait-ForUser
         }
         "0" {
             Write-Host "Завершение."

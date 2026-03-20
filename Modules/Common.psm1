@@ -30,14 +30,10 @@ function Get-FirstSetupRoot {
     return $script:FirstSetupRoot
 }
 
-function Assert-RunningAsAdministrator {
+function Test-RunningAsAdministrator {
     $currentIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = [Security.Principal.WindowsPrincipal]::new($currentIdentity)
-    $isAdmin = $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-
-    if (-not $isAdmin) {
-        throw "Скрипт нужно запускать из PowerShell от имени администратора."
-    }
+    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
 function Write-Section {
@@ -111,10 +107,13 @@ function Invoke-NativeCommand {
     }
 }
 
-function Ensure-WingetAvailable {
-    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+function Get-WingetCommand {
+    $command = Get-Command winget -ErrorAction SilentlyContinue
+    if (-not $command) {
         throw "winget не найден. Установите App Installer из Microsoft Store."
     }
+
+    return $command
 }
 
 function Read-NumberSelection {
@@ -145,7 +144,7 @@ function Read-NumberSelection {
     return @($values | Sort-Object -Unique)
 }
 
-function Pause-ForUser {
+function Wait-ForUser {
     [void](Read-Host "Нажмите Enter для продолжения")
 }
 
@@ -172,13 +171,13 @@ function Read-YesNo {
 }
 
 Export-ModuleMember -Function @(
-    "Assert-RunningAsAdministrator",
-    "Ensure-WingetAvailable",
+    "Get-WingetCommand",
     "Get-FirstSetupRoot",
     "Initialize-FirstSetupEnvironment",
     "Invoke-LoggedAction",
     "Invoke-NativeCommand",
-    "Pause-ForUser",
+    "Test-RunningAsAdministrator",
+    "Wait-ForUser",
     "Read-YesNo",
     "Read-NumberSelection",
     "Write-Log",
