@@ -20,6 +20,7 @@ Import-Module (Join-Path $scriptRoot "Modules\Automation.psm1") -Force
 Import-Module (Join-Path $scriptRoot "Modules\HardwareProfile.psm1") -Force
 Import-Module (Join-Path $scriptRoot "Modules\Cooling.psm1") -Force
 Import-Module (Join-Path $scriptRoot "Modules\Backup.psm1") -Force
+Import-Module (Join-Path $scriptRoot "Modules\Storage.psm1") -Force
 
 Assert-RunningAsAdministrator
 Initialize-FirstSetupEnvironment -RootPath $scriptRoot
@@ -40,16 +41,20 @@ function Show-MainMenu {
     Write-Host "12. Настроить тему и отображение Windows"
     Write-Host "13. Установить NVIDIA App"
     Write-Host "14. Заменить поиск Edge с Bing на Google"
-    Write-Host "15. Запустить системные fixes"
-    Write-Host "16. Обновить все установленные winget-пакеты"
-    Write-Host "17. Экспортировать шаблон конфигурации"
-    Write-Host "18. Показать рекомендации под это железо"
-    Write-Host "19. Диагностика DeepCool AK400 Digital"
-    Write-Host "20. Установить DeepCool DIGITAL Software"
-    Write-Host "21. Создать backup по BackupTemplate.json"
-    Write-Host "22. Восстановить backup по BackupTemplate.json"
-    Write-Host "23. Экспортировать шаблон backup-конфига"
-    Write-Host "24. Выполнить полный рекомендуемый сценарий"
+    Write-Host "15. Отключить lock screen / пароль после сна / UAC"
+    Write-Host "16. Запустить системные fixes"
+    Write-Host "17. Анализ дисков"
+    Write-Host "18. Оптимизация дисков"
+    Write-Host "19. Проверка состояния дисков"
+    Write-Host "20. Обновить все установленные winget-пакеты"
+    Write-Host "21. Экспортировать шаблон конфигурации"
+    Write-Host "22. Показать рекомендации под это железо"
+    Write-Host "23. Диагностика DeepCool AK400 Digital"
+    Write-Host "24. Установить DeepCool DIGITAL Software"
+    Write-Host "25. Создать backup по BackupTemplate.json"
+    Write-Host "26. Восстановить backup по BackupTemplate.json"
+    Write-Host "27. Экспортировать шаблон backup-конфига"
+    Write-Host "28. Выполнить полный рекомендуемый сценарий"
     Write-Host "0. Выход"
 }
 
@@ -136,44 +141,60 @@ do {
             Pause-ForUser
         }
         "15" {
-            Invoke-SystemFixesPreset
+            Set-ConvenienceLoginPreset
             Pause-ForUser
         }
         "16" {
-            Update-AllWingetPackages
+            Invoke-SystemFixesPreset
             Pause-ForUser
         }
         "17" {
-            Export-SetupConfigTemplate
+            Show-StorageOverview
             Pause-ForUser
         }
         "18" {
-            Show-HardwareRecommendations
+            Invoke-StorageOptimizationPreset
             Pause-ForUser
         }
         "19" {
-            Invoke-DeepCoolDigitalDiagnostics
+            Invoke-StorageHealthCheck
             Pause-ForUser
         }
         "20" {
-            Install-DeepCoolDigitalSoftware
+            Update-AllWingetPackages
             Pause-ForUser
         }
         "21" {
+            Export-SetupConfigTemplate
+            Pause-ForUser
+        }
+        "22" {
+            Show-HardwareRecommendations
+            Pause-ForUser
+        }
+        "23" {
+            Invoke-DeepCoolDigitalDiagnostics
+            Pause-ForUser
+        }
+        "24" {
+            Install-DeepCoolDigitalSoftware
+            Pause-ForUser
+        }
+        "25" {
             $backupConfiguration = Get-BackupConfig
             Invoke-BackupFromConfiguration -Configuration $backupConfiguration
             Pause-ForUser
         }
-        "22" {
+        "26" {
             $backupConfiguration = Get-BackupConfig
             Invoke-RestoreFromConfiguration -Configuration $backupConfiguration
             Pause-ForUser
         }
-        "23" {
+        "27" {
             Export-BackupConfigTemplate
             Pause-ForUser
         }
-        "24" {
+        "28" {
             $configuration = Get-HardwareAdaptiveSetupConfiguration -Path $ConfigPath
             Invoke-SetupConfiguration -Configuration $configuration
             Pause-ForUser

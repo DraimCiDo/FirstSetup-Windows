@@ -85,11 +85,43 @@ function Invoke-WindowsOptimizationPreset {
         Set-RegistryValueSafe -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Value 0
     }
 
+    Invoke-LoggedAction -Name "Показывать в Alt+Tab только окно браузера, а не все вкладки" -Action {
+        Set-RegistryValueSafe -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "MultiTaskingAltTabFilter" -Value 3
+    }
+
+    Invoke-LoggedAction -Name "Включить историю буфера обмена Win+V" -Action {
+        Set-RegistryValueSafe -Path "HKCU:\Software\Microsoft\Clipboard" -Name "EnableClipboardHistory" -Value 1
+    }
+
     Invoke-LoggedAction -Name "Включить высокий план электропитания" -Action {
         Invoke-NativeCommand -FilePath "powercfg.exe" -ArgumentList @("/S", "SCHEME_MIN")
     }
 
     Restart-ExplorerShell
+}
+
+function Set-ConvenienceLoginPreset {
+    [CmdletBinding()]
+    param()
+
+    Write-Section "Быстрый вход в систему"
+
+    Invoke-LoggedAction -Name "Отключить экран блокировки" -Action {
+        Set-RegistryValueSafe -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization" -Name "NoLockScreen" -Value 1
+    }
+
+    Invoke-LoggedAction -Name "Отключить требование пароля после сна" -Action {
+        Set-RegistryValueSafe -Path "HKLM:\SOFTWARE\Policies\Microsoft\Power\PowerSettings\0E796BDB-100D-47D6-A2D5-F7D2DAA51F51" -Name "DCSettingIndex" -Value 0
+        Set-RegistryValueSafe -Path "HKLM:\SOFTWARE\Policies\Microsoft\Power\PowerSettings\0E796BDB-100D-47D6-A2D5-F7D2DAA51F51" -Name "ACSettingIndex" -Value 0
+    }
+
+    Invoke-LoggedAction -Name "Полностью отключить UAC" -Action {
+        Set-RegistryValueSafe -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "EnableLUA" -Value 0
+        Set-RegistryValueSafe -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "ConsentPromptBehaviorAdmin" -Value 0
+        Set-RegistryValueSafe -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "PromptOnSecureDesktop" -Value 0
+    }
+
+    Write-Log "Для применения отключения UAC и части параметров входа требуется перезагрузка." "WARN"
 }
 
 function Invoke-GamingOptimizationPreset {
@@ -350,6 +382,7 @@ Export-ModuleMember -Function @(
     "Invoke-WindowsOptimizationPreset",
     "Remove-BloatwareApps",
     "Set-BluetoothPreset",
+    "Set-ConvenienceLoginPreset",
     "Set-EdgeDefaultSearchGoogle",
     "Set-GamingMousePreset",
     "Set-WindowsAppearancePreset"
