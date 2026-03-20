@@ -1,4 +1,4 @@
-Set-StrictMode -Version Latest
+﻿Set-StrictMode -Version Latest
 
 function Test-NvidiaGpuPresent {
     $controllers = Get-CimInstance -ClassName Win32_VideoController -ErrorAction SilentlyContinue

@@ -1,4 +1,4 @@
-Set-StrictMode -Version Latest
+﻿Set-StrictMode -Version Latest
 
 function Get-DefaultBackupConfigPath {
     return Join-Path (Get-FirstSetupRoot) "Config\BackupTemplate.json"

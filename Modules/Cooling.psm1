@@ -1,4 +1,4 @@
-Set-StrictMode -Version Latest
+﻿Set-StrictMode -Version Latest
 
 function Get-DeepCoolCompanionProjectPath {
     [CmdletBinding()]
@@ -62,41 +62,6 @@ function Test-DeepCoolDigitalDetected {
     param()
 
     return (Get-DeepCoolDigitalDevices).Count -gt 0
-}
-
-function Install-DeepCoolDigitalSoftware {
-    [CmdletBinding()]
-    param()
-
-    $downloadUrl = "https://www.deepcool.com/download/DeepCool_DIGITAL_Setup.zip"
-    $downloadsDirectory = Join-Path (Get-FirstSetupRoot) "Downloads"
-    $extractDirectory = Join-Path $downloadsDirectory "DeepCool-DIGITAL"
-
-    if (-not (Test-Path $downloadsDirectory)) {
-        New-Item -Path $downloadsDirectory -ItemType Directory | Out-Null
-    }
-
-    if (-not (Test-Path $extractDirectory)) {
-        New-Item -Path $extractDirectory -ItemType Directory | Out-Null
-    }
-
-    $archivePath = Join-Path $downloadsDirectory "DeepCool-DIGITAL-Setup.zip"
-
-    Invoke-LoggedAction -Name "Скачать официальный DeepCool DIGITAL Setup" -Action {
-        Invoke-WebRequest -Uri $downloadUrl -OutFile $archivePath
-    }
-
-    Invoke-LoggedAction -Name "Распаковать DeepCool DIGITAL Setup" -Action {
-        Expand-Archive -Path $archivePath -DestinationPath $extractDirectory -Force
-    }
-
-    $installer = Get-ChildItem -Path $extractDirectory -Recurse -Include *.exe | Select-Object -First 1
-    if (-not $installer) {
-        throw "Не найден исполняемый файл установщика DeepCool DIGITAL в архиве."
-    }
-
-    Write-Log "Запускаю установщик DeepCool DIGITAL: $($installer.FullName)"
-    Start-Process -FilePath $installer.FullName
 }
 
 function Install-DeepCoolCompanion {
@@ -271,12 +236,9 @@ function Invoke-DeepCoolDigitalDiagnostics {
 
 Export-ModuleMember -Function @(
     "Get-DeepCoolDigitalDevices",
-    "Install-DeepCoolDigitalSoftware",
     "Install-DeepCoolCompanion",
     "Invoke-DeepCoolDigitalDiagnostics",
     "Reset-DeepCoolDigitalDevice",
-    "Restart-DeepCoolDigitalClean",
     "Start-DeepCoolCompanion",
-    "Set-DeepCoolDigitalStabilityPreset",
     "Test-DeepCoolDigitalDetected"
 )
