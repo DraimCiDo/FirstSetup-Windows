@@ -53,11 +53,16 @@ function Show-MainMenu {
     Write-Host "22. Экспортировать шаблон конфигурации"
     Write-Host "23. Показать рекомендации под это железо"
     Write-Host "24. Диагностика DeepCool AK400 Digital"
-    Write-Host "25. Установить DeepCool DIGITAL Software"
-    Write-Host "26. Создать backup по BackupTemplate.json"
-    Write-Host "27. Восстановить backup по BackupTemplate.json"
-    Write-Host "28. Экспортировать шаблон backup-конфига"
-    Write-Host "29. Выполнить полный рекомендуемый сценарий"
+    Write-Host "25. Clean restart DeepCool DIGITAL"
+    Write-Host "26. DeepCool DIGITAL stability fix"
+    Write-Host "27. Сбросить HID-устройство DeepCool"
+    Write-Host "28. Собрать и установить DeepCool Companion"
+    Write-Host "29. Запустить DeepCool Companion"
+    Write-Host "30. Установить DeepCool DIGITAL Software"
+    Write-Host "31. Создать backup по BackupTemplate.json"
+    Write-Host "32. Восстановить backup по BackupTemplate.json"
+    Write-Host "33. Экспортировать шаблон backup-конфига"
+    Write-Host "34. Выполнить полный рекомендуемый сценарий"
     Write-Host "0. Выход"
 }
 
@@ -184,24 +189,44 @@ do {
             Wait-ForUser
         }
         "25" {
-            Install-DeepCoolDigitalSoftware
+            Restart-DeepCoolDigitalClean
             Wait-ForUser
         }
         "26" {
+            Set-DeepCoolDigitalStabilityPreset
+            Wait-ForUser
+        }
+        "27" {
+            Reset-DeepCoolDigitalDevice
+            Wait-ForUser
+        }
+        "28" {
+            Install-DeepCoolCompanion -LaunchAfterInstall
+            Wait-ForUser
+        }
+        "29" {
+            Start-DeepCoolCompanion
+            Wait-ForUser
+        }
+        "30" {
+            Install-DeepCoolDigitalSoftware
+            Wait-ForUser
+        }
+        "31" {
             $backupConfiguration = Get-BackupConfig
             Invoke-BackupFromConfiguration -Configuration $backupConfiguration
             Wait-ForUser
         }
-        "27" {
+        "32" {
             $backupConfiguration = Get-BackupConfig
             Invoke-RestoreFromConfiguration -Configuration $backupConfiguration
             Wait-ForUser
         }
-        "28" {
+        "33" {
             Export-BackupConfigTemplate
             Wait-ForUser
         }
-        "29" {
+        "34" {
             $configuration = Get-HardwareAdaptiveSetupConfiguration -Path $ConfigPath
             Invoke-SetupConfiguration -Configuration $configuration
             Wait-ForUser

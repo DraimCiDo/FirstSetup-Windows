@@ -1,2 +1,6 @@
 /Logs
 /Downloads
+/.tmp
+**/bin/
+**/obj/
+**/publish/
