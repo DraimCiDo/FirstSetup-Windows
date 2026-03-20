@@ -16,6 +16,12 @@ function Set-RegistryValueSafe {
         New-Item -Path $Path -Force -ErrorAction Stop | Out-Null
     }
 
+    $existingProperty = Get-ItemProperty -Path $Path -Name $Name -ErrorAction SilentlyContinue
+    if ($null -ne $existingProperty) {
+        Set-ItemProperty -Path $Path -Name $Name -Value $Value -ErrorAction Stop
+        return
+    }
+
     New-ItemProperty -Path $Path -Name $Name -Value $Value -PropertyType $Type -Force -ErrorAction Stop | Out-Null
 }
 
@@ -38,6 +44,21 @@ function Try-RegistryValueSafe {
     catch {
         Write-Log "Не удалось применить реестровый параметр $Path :: $Name. $($_.Exception.Message)" "WARN"
         return $false
+    }
+}
+
+function Get-TaskbarAlignmentValue {
+    [CmdletBinding()]
+    param()
+
+    Write-Host "Выберите положение кнопок панели задач:"
+    Write-Host "1. Слева"
+    Write-Host "2. По центру"
+
+    $choice = Read-Host "Введите номер"
+    switch ($choice) {
+        "2" { return 1 }
+        default { return 0 }
     }
 }
 
@@ -275,6 +296,29 @@ function Disable-OptionalFeatureIfEnabled {
     Disable-WindowsOptionalFeature -Online -FeatureName $FeatureName -NoRestart | Out-Null
 }
 
+function Enable-OptionalFeatureIfAvailable {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$FeatureName
+    )
+
+    $feature = Get-WindowsOptionalFeature -Online -FeatureName $FeatureName -ErrorAction SilentlyContinue
+
+    if (-not $feature) {
+        Write-Log "Компонент недоступен на этой системе: $FeatureName" "WARN"
+        return $false
+    }
+
+    if ($feature.State -eq "Enabled") {
+        Write-Log "Компонент уже включен: $FeatureName"
+        return $true
+    }
+
+    Enable-WindowsOptionalFeature -Online -FeatureName $FeatureName -All -NoRestart | Out-Null
+    return $true
+}
+
 function Disable-UnneededWindowsComponents {
     [CmdletBinding()]
     param()
@@ -356,15 +400,15 @@ function Enable-DeveloperFeatures {
     Write-Section "Включение WSL / Hyper-V"
 
     Invoke-LoggedAction -Name "Включить Windows Subsystem for Linux" -Action {
-        Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -All -NoRestart
+        [void](Enable-OptionalFeatureIfAvailable -FeatureName "Microsoft-Windows-Subsystem-Linux")
     }
 
     Invoke-LoggedAction -Name "Включить Virtual Machine Platform" -Action {
-        Enable-WindowsOptionalFeature -Online -FeatureName "VirtualMachinePlatform" -All -NoRestart
+        [void](Enable-OptionalFeatureIfAvailable -FeatureName "VirtualMachinePlatform")
     }
 
     Invoke-LoggedAction -Name "Включить Hyper-V" -Action {
-        Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Hyper-V-All" -All -NoRestart
+        [void](Enable-OptionalFeatureIfAvailable -FeatureName "Microsoft-Hyper-V-All")
     }
 
     Write-Log "Компоненты включены. После завершения всех шагов рекомендуется перезагрузка." "WARN"
@@ -375,6 +419,8 @@ function Set-WindowsAppearancePreset {
     param()
 
     Write-Section "Тема и отображение Windows"
+
+    $taskbarAlignment = Get-TaskbarAlignmentValue
 
     Invoke-LoggedAction -Name "Включить темную тему приложений" -Action {
         Set-RegistryValueSafe -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value 0
@@ -388,8 +434,12 @@ function Set-WindowsAppearancePreset {
         Set-RegistryValueSafe -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "EnableTransparency" -Value 1
     }
 
-    Invoke-LoggedAction -Name "Сместить панель задач влево" -Action {
-        Set-RegistryValueSafe -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Value 0
+    Invoke-LoggedAction -Name "Настроить положение кнопок панели задач" -Action {
+        Set-RegistryValueSafe -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Value $taskbarAlignment
+    }
+
+    Invoke-LoggedAction -Name "Отключить мини-приложения" -Action {
+        [void](Try-RegistryValueSafe -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Value 0)
     }
 
     Invoke-LoggedAction -Name "Отключить snap suggestions" -Action {
