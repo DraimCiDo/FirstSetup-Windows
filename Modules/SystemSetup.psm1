@@ -13,10 +13,32 @@ function Set-RegistryValueSafe {
     )
 
     if (-not (Test-Path $Path)) {
-        New-Item -Path $Path -Force | Out-Null
+        New-Item -Path $Path -Force -ErrorAction Stop | Out-Null
     }
 
-    New-ItemProperty -Path $Path -Name $Name -Value $Value -PropertyType $Type -Force | Out-Null
+    New-ItemProperty -Path $Path -Name $Name -Value $Value -PropertyType $Type -Force -ErrorAction Stop | Out-Null
+}
+
+function Try-RegistryValueSafe {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$Path,
+        [Parameter(Mandatory)]
+        [string]$Name,
+        [Parameter(Mandatory)]
+        [object]$Value,
+        [Microsoft.Win32.RegistryValueKind]$Type = [Microsoft.Win32.RegistryValueKind]::DWord
+    )
+
+    try {
+        Set-RegistryValueSafe -Path $Path -Name $Name -Value $Value -Type $Type
+        return $true
+    }
+    catch {
+        Write-Log "Не удалось применить реестровый параметр $Path :: $Name. $($_.Exception.Message)" "WARN"
+        return $false
+    }
 }
 
 function Remove-AppxPackageByPattern {
@@ -59,7 +81,7 @@ function Invoke-WindowsOptimizationPreset {
     }
 
     Invoke-LoggedAction -Name "Отключить Widgets" -Action {
-        Set-RegistryValueSafe -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Value 0
+        [void](Try-RegistryValueSafe -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Value 0)
     }
 
     Invoke-LoggedAction -Name "Отключить Microsoft Teams Chat" -Action {
