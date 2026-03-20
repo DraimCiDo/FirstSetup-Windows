@@ -69,8 +69,22 @@ function Invoke-RobocopyTransfer {
     )
 
     Write-Log "Robocopy: $Source -> $Destination"
-    & robocopy.exe @arguments | Out-Null
-    $exitCode = $LASTEXITCODE
+    $process = Start-Process -FilePath "robocopy.exe" -ArgumentList $arguments -NoNewWindow -PassThru
+
+    try {
+        while (-not $process.HasExited) {
+            Start-Sleep -Milliseconds 500
+            $process.Refresh()
+        }
+    }
+    catch {
+        if (-not $process.HasExited) {
+            Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+        }
+        throw
+    }
+
+    $exitCode = $process.ExitCode
 
     if ($exitCode -gt 7) {
         throw "Robocopy завершился с ошибкой. Код: $exitCode"
@@ -123,6 +137,16 @@ function Restore-BackupItem {
     }
 }
 
+function Get-EnabledBackupItems {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [pscustomobject]$Configuration
+    )
+
+    return @($Configuration.Items | Where-Object { $_.Enabled -ne $false })
+}
+
 function Save-BackupManifest {
     [CmdletBinding()]
     param(
@@ -159,6 +183,7 @@ function Invoke-BackupFromConfiguration {
     )
 
     Write-Section "Создание backup"
+    Write-Log "Backup запущен. Для прерывания используйте Ctrl+C; активный robocopy-процесс будет остановлен." "WARN"
 
     $destinationRoot = Resolve-BackupPath -Path $Configuration.DestinationRoot
     if (-not $destinationRoot) {
@@ -169,9 +194,18 @@ function Invoke-BackupFromConfiguration {
         New-Item -Path $destinationRoot -ItemType Directory -Force | Out-Null
     }
 
-    foreach ($item in @($Configuration.Items)) {
+    $items = Get-EnabledBackupItems -Configuration $Configuration
+    $total = $items.Count
+    $index = 0
+
+    foreach ($item in $items) {
+        $index++
+        $percent = [int](($index / [math]::Max($total, 1)) * 100)
+        Write-Progress -Id 1 -Activity "Создание backup" -Status "$index / $total - $($item.Name)" -PercentComplete $percent
         Copy-BackupItem -Item $item -DestinationRoot $destinationRoot
     }
+
+    Write-Progress -Id 1 -Activity "Создание backup" -Completed
 
     Save-BackupManifest -Configuration $Configuration -DestinationRoot $destinationRoot
     Write-Log "Backup завершен: $destinationRoot"
@@ -185,15 +219,25 @@ function Invoke-RestoreFromConfiguration {
     )
 
     Write-Section "Восстановление backup"
+    Write-Log "Restore запущен. Для прерывания используйте Ctrl+C; активный robocopy-процесс будет остановлен." "WARN"
 
     $backupRoot = Resolve-BackupPath -Path $Configuration.DestinationRoot
     if (-not (Test-Path $backupRoot)) {
         throw "Папка backup не найдена: $backupRoot"
     }
 
-    foreach ($item in @($Configuration.Items)) {
+    $items = Get-EnabledBackupItems -Configuration $Configuration
+    $total = $items.Count
+    $index = 0
+
+    foreach ($item in $items) {
+        $index++
+        $percent = [int](($index / [math]::Max($total, 1)) * 100)
+        Write-Progress -Id 2 -Activity "Восстановление backup" -Status "$index / $total - $($item.Name)" -PercentComplete $percent
         Restore-BackupItem -Item $item -BackupRoot $backupRoot
     }
+
+    Write-Progress -Id 2 -Activity "Восстановление backup" -Completed
 
     Write-Log "Восстановление завершено."
 }
