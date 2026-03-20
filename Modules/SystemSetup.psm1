@@ -51,13 +51,34 @@ function Remove-AppxPackageByPattern {
     $packages = Get-AppxPackage -AllUsers -Name $Pattern -ErrorAction SilentlyContinue
     foreach ($package in $packages) {
         Write-Log "Удаление Appx package: $($package.Name)"
-        Remove-AppxPackage -Package $package.PackageFullName -AllUsers -ErrorAction SilentlyContinue
+
+        try {
+            $currentUserPackage = Get-AppxPackage -Name $package.Name -ErrorAction SilentlyContinue | Where-Object { $_.PackageFullName -eq $package.PackageFullName } | Select-Object -First 1
+            if ($currentUserPackage) {
+                Remove-AppxPackage -Package $currentUserPackage.PackageFullName -ErrorAction Stop
+            }
+        }
+        catch {
+            Write-Log "Не удалось удалить пакет $($package.Name) для текущего пользователя: $($_.Exception.Message)" "WARN"
+        }
+
+        try {
+            Remove-AppxPackage -Package $package.PackageFullName -AllUsers -ErrorAction Stop
+        }
+        catch {
+            Write-Log "Не удалось удалить пакет $($package.Name) для всех пользователей: $($_.Exception.Message)" "WARN"
+        }
     }
 
     $provisioned = Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -like $Pattern }
     foreach ($item in $provisioned) {
         Write-Log "Удаление provisioned package: $($item.DisplayName)"
-        Remove-AppxProvisionedPackage -Online -PackageName $item.PackageName -ErrorAction SilentlyContinue | Out-Null
+        try {
+            Remove-AppxProvisionedPackage -Online -PackageName $item.PackageName -ErrorAction Stop | Out-Null
+        }
+        catch {
+            Write-Log "Не удалось удалить provisioned package $($item.DisplayName): $($_.Exception.Message)" "WARN"
+        }
     }
 }
 
