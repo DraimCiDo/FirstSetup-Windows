@@ -442,6 +442,10 @@ function Set-WindowsAppearancePreset {
         [void](Try-RegistryValueSafe -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Value 0)
     }
 
+    Invoke-LoggedAction -Name "Включить 'Завершить задачу' в контекстном меню панели задач" -Action {
+        Set-RegistryValueSafe -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarEndTask" -Value 1
+    }
+
     Invoke-LoggedAction -Name "Отключить snap suggestions" -Action {
         Set-RegistryValueSafe -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "SnapAssistFlyoutEnabled" -Value 0
     }
