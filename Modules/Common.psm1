@@ -107,7 +107,43 @@ function Invoke-NativeCommand {
     }
 }
 
+function Test-MicrosoftStoreInstalled {
+    [CmdletBinding()]
+    param()
+
+    return $null -ne (Get-AppxPackage -AllUsers -Name "Microsoft.WindowsStore" -ErrorAction SilentlyContinue | Select-Object -First 1)
+}
+
+function Ensure-MicrosoftStoreAvailable {
+    [CmdletBinding()]
+    param()
+
+    if (Test-MicrosoftStoreInstalled) {
+        return $true
+    }
+
+    Write-Log "Microsoft Store не найден. Пробую восстановление через wsreset -i" "WARN"
+
+    try {
+        Invoke-NativeCommand -FilePath "wsreset.exe" -ArgumentList @("-i") -IgnoreExitCode
+        Start-Sleep -Seconds 8
+    }
+    catch {
+        Write-Log "Не удалось запустить wsreset -i: $($_.Exception.Message)" "WARN"
+    }
+
+    if (Test-MicrosoftStoreInstalled) {
+        Write-Log "Microsoft Store обнаружен после wsreset -i"
+        return $true
+    }
+
+    Write-Log "Microsoft Store по-прежнему не найден." "WARN"
+    return $false
+}
+
 function Get-WingetCommand {
+    [void](Ensure-MicrosoftStoreAvailable)
+
     $command = Get-Command winget -ErrorAction SilentlyContinue
     if (-not $command) {
         throw "winget не найден. Установите App Installer из Microsoft Store."
@@ -171,12 +207,14 @@ function Read-YesNo {
 }
 
 Export-ModuleMember -Function @(
+    "Ensure-MicrosoftStoreAvailable",
     "Get-WingetCommand",
     "Get-FirstSetupRoot",
     "Initialize-FirstSetupEnvironment",
     "Invoke-LoggedAction",
     "Invoke-NativeCommand",
     "Test-RunningAsAdministrator",
+    "Test-MicrosoftStoreInstalled",
     "Wait-ForUser",
     "Read-YesNo",
     "Read-NumberSelection",

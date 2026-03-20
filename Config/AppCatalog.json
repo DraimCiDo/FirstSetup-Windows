@@ -112,6 +112,11 @@
       "Name": "Lightshot",
       "Id": "Skillbrains.Lightshot",
       "Scope": "machine"
+    },
+    {
+      "Name": "qBittorrent",
+      "Id": "qBittorrent.qBittorrent",
+      "Scope": "machine"
     }
   ]
 }
