@@ -142,7 +142,7 @@ function Read-NumberSelection {
         }
     }
 
-    return $values | Sort-Object -Unique
+    return @($values | Sort-Object -Unique)
 }
 
 function Pause-ForUser {

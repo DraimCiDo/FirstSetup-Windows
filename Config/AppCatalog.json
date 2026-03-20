@@ -65,7 +65,8 @@
     {
       "Name": "Samsung Magician",
       "Id": "XPDDT99J9GKB5C",
-      "Scope": "machine"
+      "Scope": "machine",
+      "Source": "msstore"
     },
     {
       "Name": "DBeaver",

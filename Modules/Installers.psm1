@@ -1,5 +1,56 @@
 Set-StrictMode -Version Latest
 
+function Get-WingetInstallArgumentSets {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [pscustomobject]$Package
+    )
+
+    $source = if ($Package.PSObject.Properties.Name -contains "Source" -and $Package.Source) { $Package.Source } else { "winget" }
+
+    $baseArguments = @(
+        "install",
+        "--id", $Package.Id,
+        "--exact",
+        "--accept-package-agreements",
+        "--accept-source-agreements",
+        "--disable-interactivity"
+    )
+
+    $argumentSets = @()
+
+    $primary = @($baseArguments)
+    if ($source) {
+        $primary += @("--source", $source)
+    }
+    if ($Package.Scope) {
+        $primary += @("--scope", $Package.Scope)
+    }
+    $argumentSets += ,$primary
+
+    if ($Package.Scope) {
+        $withoutScope = @($baseArguments)
+        if ($source) {
+            $withoutScope += @("--source", $source)
+        }
+        $argumentSets += ,$withoutScope
+    }
+
+    if ($source -eq "winget") {
+        $withoutSource = @($baseArguments)
+        if ($Package.Scope) {
+            $withoutSource += @("--scope", $Package.Scope)
+        }
+        $argumentSets += ,$withoutSource
+
+        $withoutSourceAndScope = @($baseArguments)
+        $argumentSets += ,$withoutSourceAndScope
+    }
+
+    return $argumentSets
+}
+
 function Get-AppCatalog {
     $catalogPath = Join-Path (Get-FirstSetupRoot) "Config\AppCatalog.json"
     return Get-Content -Path $catalogPath -Raw | ConvertFrom-Json
@@ -42,22 +93,22 @@ function Install-WingetPackage {
         return
     }
 
-    $arguments = @(
-        "install",
-        "--id", $Package.Id,
-        "--exact",
-        "--accept-package-agreements",
-        "--accept-source-agreements",
-        "--source", "winget",
-        "--disable-interactivity"
-    )
-
-    if ($Package.Scope) {
-        $arguments += @("--scope", $Package.Scope)
-    }
-
     Invoke-LoggedAction -Name "Установка $($Package.Name)" -Action {
-        Invoke-NativeCommand -FilePath "winget" -ArgumentList $arguments
+        $argumentSets = Get-WingetInstallArgumentSets -Package $Package
+        $lastError = $null
+
+        foreach ($arguments in $argumentSets) {
+            try {
+                Invoke-NativeCommand -FilePath "winget" -ArgumentList $arguments
+                return
+            }
+            catch {
+                $lastError = $_
+                Write-Log "Попытка установки не удалась, пробую более совместимый вариант: $($arguments -join ' ')" "WARN"
+            }
+        }
+
+        throw $lastError
     }
 }
 
@@ -75,6 +126,38 @@ function Install-AppProfile {
     Write-Section "Установка профиля: $ProfileName"
 
     Install-AppPackages -Packages $packages
+}
+
+function Install-AppProfileInteractive {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [ValidateSet("required", "optional")]
+        [string]$ProfileName
+    )
+
+    $catalog = Get-AppCatalog
+    $packages = @($catalog.$ProfileName)
+
+    Write-Section "Выбор приложений из профиля: $ProfileName"
+
+    for ($index = 0; $index -lt $packages.Count; $index++) {
+        $package = $packages[$index]
+        Write-Host ("{0}. {1} [{2}]" -f ($index + 1), $package.Name, $package.Id)
+    }
+
+    $selection = @(Read-NumberSelection -MaxNumber $packages.Count -Prompt "Введите номера приложений для установки через запятую")
+
+    if ($selection.Count -eq 0) {
+        Write-Warning "Ничего не выбрано."
+        return
+    }
+
+    $selectedPackages = @(foreach ($number in $selection) {
+        $packages[$number - 1]
+    })
+
+    Install-AppPackages -Packages $selectedPackages
 }
 
 function Install-AppPackages {
@@ -133,7 +216,7 @@ function Install-CustomAppSelection {
         Write-Host ("{0}. {1} [{2}]" -f ($index + 1), $package.Name, $package.Id)
     }
 
-    $selection = Read-NumberSelection -MaxNumber $packages.Count -Prompt "Введите номера пакетов через запятую"
+    $selection = @(Read-NumberSelection -MaxNumber $packages.Count -Prompt "Введите номера пакетов через запятую")
 
     if ($selection.Count -eq 0) {
         Write-Warning "Ничего не выбрано."
@@ -149,6 +232,7 @@ Export-ModuleMember -Function @(
     "Get-AppCatalog",
     "Get-AppPackageByName",
     "Install-AppProfile",
+    "Install-AppProfileInteractive",
     "Install-AppPackages",
     "Install-AppNames",
     "Install-CustomAppSelection",

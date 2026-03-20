@@ -28,8 +28,8 @@ Initialize-FirstSetupEnvironment -RootPath $scriptRoot
 function Show-MainMenu {
     Write-Section "FirstSetup Windows"
     Write-Host "1. Автоматически определить ПК и применить нужный профиль"
-    Write-Host "2. Установить основной набор приложений"
-    Write-Host "3. Установить optional-приложения"
+    Write-Host "2. Выбрать программы из required-профиля"
+    Write-Host "3. Выбрать программы из optional-профиля"
     Write-Host "4. Выбрать приложения вручную"
     Write-Host "5. Применить оптимизацию Windows"
     Write-Host "6. Оптимизировать Windows под игры"
@@ -89,11 +89,11 @@ do {
             Pause-ForUser
         }
         "2" {
-            Install-AppProfile -ProfileName "required"
+            Install-AppProfileInteractive -ProfileName "required"
             Pause-ForUser
         }
         "3" {
-            Install-AppProfile -ProfileName "optional"
+            Install-AppProfileInteractive -ProfileName "optional"
             Pause-ForUser
         }
         "4" {
