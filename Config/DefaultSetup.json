@@ -1,0 +1,40 @@
+{
+  "Applications": {
+    "UpdateAllBeforeInstall": false,
+    "Required": [
+      "Steam",
+      "Discord",
+      "Visual Studio Code",
+      "Prism Launcher",
+      "Epic Games Launcher",
+      "Spotify"
+    ],
+    "Optional": [
+      "Malwarebytes",
+      "WinRAR",
+      "Git",
+      "Node.js LTS",
+      "Samsung Magician"
+    ]
+  },
+  "Actions": {
+    "WindowsOptimization": true,
+    "GamingOptimization": true,
+    "RemoveBloatware": true,
+    "DisableUnusedWindowsFeatures": true,
+    "ConfigureMouse": true,
+    "ConfigureBluetooth": true,
+    "EnableDeveloperFeatures": true,
+    "ConfigureAppearance": true,
+    "ConfigureEdgeGoogleSearch": true,
+    "InstallNvidiaApp": true,
+    "RunSystemFixes": false,
+    "ShowHardwareRecommendations": true
+  },
+  "HardwareHints": {
+    "TargetProfileName": "Generic Gaming/Desktop PC",
+    "PreferredResolution": "2560x1440",
+    "PreferredDriverChannel": "Game Ready",
+    "RequireXmpCheck": true
+  }
+}

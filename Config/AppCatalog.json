@@ -1,0 +1,116 @@
+{
+  "required": [
+    {
+      "Name": "Steam",
+      "Id": "Valve.Steam",
+      "Scope": "machine"
+    },
+    {
+      "Name": "Discord",
+      "Id": "Discord.Discord",
+      "Scope": "machine"
+    },
+    {
+      "Name": "Visual Studio Code",
+      "Id": "Microsoft.VisualStudioCode",
+      "Scope": "machine"
+    },
+    {
+      "Name": "Prism Launcher",
+      "Id": "PrismLauncher.PrismLauncher",
+      "Scope": "machine"
+    },
+    {
+      "Name": "Epic Games Launcher",
+      "Id": "EpicGames.EpicGamesLauncher",
+      "Scope": "machine"
+    },
+    {
+      "Name": "Spotify",
+      "Id": "Spotify.Spotify",
+      "Scope": "machine"
+    }
+  ],
+  "optional": [
+    {
+      "Name": "CCleaner",
+      "Id": "Piriform.CCleaner",
+      "Scope": "machine"
+    },
+    {
+      "Name": "Malwarebytes",
+      "Id": "Malwarebytes.Malwarebytes",
+      "Scope": "machine"
+    },
+    {
+      "Name": "WinRAR",
+      "Id": "RARLab.WinRAR",
+      "Scope": "machine"
+    },
+    {
+      "Name": "Git",
+      "Id": "Git.Git",
+      "Scope": "machine"
+    },
+    {
+      "Name": "Node.js LTS",
+      "Id": "OpenJS.NodeJS.LTS",
+      "Scope": "machine"
+    },
+    {
+      "Name": "Koala Clash",
+      "Id": "coolcoala.KoalaClash",
+      "Scope": "machine"
+    },
+    {
+      "Name": "Samsung Magician",
+      "Id": "XPDDT99J9GKB5C",
+      "Scope": "machine"
+    },
+    {
+      "Name": "DBeaver",
+      "Id": "DBeaver.DBeaver.Community",
+      "Scope": "machine"
+    },
+    {
+      "Name": "IntelliJ IDEA Community",
+      "Id": "JetBrains.IntelliJIDEA.Community",
+      "Scope": "machine"
+    },
+    {
+      "Name": "GitHub Desktop",
+      "Id": "GitHub.GitHubDesktop",
+      "Scope": "machine"
+    },
+    {
+      "Name": "Blockbench",
+      "Id": "JannisX11.Blockbench",
+      "Scope": "machine"
+    },
+    {
+      "Name": "r2modman",
+      "Id": "ebkr.r2modman",
+      "Scope": "machine"
+    },
+    {
+      "Name": "Telegram Desktop",
+      "Id": "Telegram.TelegramDesktop",
+      "Scope": "machine"
+    },
+    {
+      "Name": "Bitvise SSH Client",
+      "Id": "Bitvise.SSH.Client",
+      "Scope": "machine"
+    },
+    {
+      "Name": "Termius",
+      "Id": "Termius.Termius",
+      "Scope": "machine"
+    },
+    {
+      "Name": "Lightshot",
+      "Id": "Skillbrains.Lightshot",
+      "Scope": "machine"
+    }
+  ]
+}

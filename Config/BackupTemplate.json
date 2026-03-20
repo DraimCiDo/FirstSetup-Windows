@@ -1,0 +1,65 @@
+{
+  "DestinationRoot": "D:\\WindowsBackup",
+  "Items": [
+    {
+      "Name": "Desktop",
+      "Enabled": true,
+      "Source": "%USERPROFILE%\\Desktop",
+      "Target": "User\\Desktop"
+    },
+    {
+      "Name": "Documents",
+      "Enabled": true,
+      "Source": "%USERPROFILE%\\Documents",
+      "Target": "User\\Documents"
+    },
+    {
+      "Name": "Downloads",
+      "Enabled": false,
+      "Source": "%USERPROFILE%\\Downloads",
+      "Target": "User\\Downloads"
+    },
+    {
+      "Name": "Pictures",
+      "Enabled": true,
+      "Source": "%USERPROFILE%\\Pictures",
+      "Target": "User\\Pictures"
+    },
+    {
+      "Name": "Videos",
+      "Enabled": false,
+      "Source": "%USERPROFILE%\\Videos",
+      "Target": "User\\Videos"
+    },
+    {
+      "Name": ".ssh",
+      "Enabled": true,
+      "Source": "%USERPROFILE%\\.ssh",
+      "Target": "Dev\\.ssh"
+    },
+    {
+      "Name": ".gitconfig",
+      "Enabled": true,
+      "Source": "%USERPROFILE%\\.gitconfig",
+      "Target": "Dev\\.gitconfig"
+    },
+    {
+      "Name": "VSCode User",
+      "Enabled": true,
+      "Source": "%APPDATA%\\Code\\User",
+      "Target": "Apps\\VSCode-User"
+    },
+    {
+      "Name": "Prism Launcher",
+      "Enabled": true,
+      "Source": "%APPDATA%\\PrismLauncher",
+      "Target": "Apps\\PrismLauncher"
+    },
+    {
+      "Name": "Telegram Desktop",
+      "Enabled": false,
+      "Source": "%APPDATA%\\Telegram Desktop",
+      "Target": "Apps\\Telegram-Desktop"
+    }
+  ]
+}
