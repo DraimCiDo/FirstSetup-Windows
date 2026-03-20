@@ -167,6 +167,25 @@ function Set-ConvenienceLoginPreset {
     Write-Log "Для применения отключения UAC и части параметров входа требуется перезагрузка." "WARN"
 }
 
+function Disable-FirewallOffNotifications {
+    [CmdletBinding()]
+    param()
+
+    Write-Section "Отключение уведомлений о Брандмауэре"
+
+    Invoke-LoggedAction -Name "Скрыть уведомления Windows Security" -Action {
+        Set-RegistryValueSafe -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender Security Center\Notifications" -Name "DisableNotifications" -Value 1
+    }
+
+    foreach ($profile in @("DomainProfile", "PrivateProfile", "PublicProfile", "StandardProfile")) {
+        Invoke-LoggedAction -Name "Отключить firewall notifications для профиля $profile" -Action {
+            Set-RegistryValueSafe -Path "HKLM:\SOFTWARE\Policies\Microsoft\WindowsFirewall\$profile" -Name "DisableNotifications" -Value 1
+        }
+    }
+
+    Write-Log "Уведомление о выключенном Брандмауэре больше не должно постоянно появляться. Может потребоваться выход из сеанса или перезагрузка." "WARN"
+}
+
 function Invoke-GamingOptimizationPreset {
     [CmdletBinding()]
     param()
@@ -419,6 +438,7 @@ function Restart-ExplorerShell {
 }
 
 Export-ModuleMember -Function @(
+    "Disable-FirewallOffNotifications",
     "Enable-DeveloperFeatures",
     "Disable-UnneededWindowsComponents",
     "Invoke-GamingOptimizationPreset",

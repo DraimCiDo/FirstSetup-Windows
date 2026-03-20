@@ -44,19 +44,20 @@ function Show-MainMenu {
     Write-Host "13. Установить NVIDIA App"
     Write-Host "14. Заменить поиск Edge с Bing на Google"
     Write-Host "15. Отключить lock screen / пароль после сна / UAC"
-    Write-Host "16. Запустить системные fixes"
-    Write-Host "17. Анализ дисков"
-    Write-Host "18. Оптимизация дисков"
-    Write-Host "19. Проверка состояния дисков"
-    Write-Host "20. Обновить все установленные winget-пакеты"
-    Write-Host "21. Экспортировать шаблон конфигурации"
-    Write-Host "22. Показать рекомендации под это железо"
-    Write-Host "23. Диагностика DeepCool AK400 Digital"
-    Write-Host "24. Установить DeepCool DIGITAL Software"
-    Write-Host "25. Создать backup по BackupTemplate.json"
-    Write-Host "26. Восстановить backup по BackupTemplate.json"
-    Write-Host "27. Экспортировать шаблон backup-конфига"
-    Write-Host "28. Выполнить полный рекомендуемый сценарий"
+    Write-Host "16. Убрать уведомление о выключенном Брандмауэре"
+    Write-Host "17. Запустить системные fixes"
+    Write-Host "18. Анализ дисков"
+    Write-Host "19. Оптимизация дисков"
+    Write-Host "20. Проверка состояния дисков"
+    Write-Host "21. Обновить все установленные winget-пакеты"
+    Write-Host "22. Экспортировать шаблон конфигурации"
+    Write-Host "23. Показать рекомендации под это железо"
+    Write-Host "24. Диагностика DeepCool AK400 Digital"
+    Write-Host "25. Установить DeepCool DIGITAL Software"
+    Write-Host "26. Создать backup по BackupTemplate.json"
+    Write-Host "27. Восстановить backup по BackupTemplate.json"
+    Write-Host "28. Экспортировать шаблон backup-конфига"
+    Write-Host "29. Выполнить полный рекомендуемый сценарий"
     Write-Host "0. Выход"
 }
 
@@ -147,56 +148,60 @@ do {
             Wait-ForUser
         }
         "16" {
-            Invoke-SystemFixesPreset
+            Disable-FirewallOffNotifications
             Wait-ForUser
         }
         "17" {
-            Show-StorageOverview
+            Invoke-SystemFixesPreset
             Wait-ForUser
         }
         "18" {
-            Invoke-StorageOptimizationPreset
+            Show-StorageOverview
             Wait-ForUser
         }
         "19" {
-            Invoke-StorageHealthCheck
+            Invoke-StorageOptimizationPreset
             Wait-ForUser
         }
         "20" {
-            Update-AllWingetPackages
+            Invoke-StorageHealthCheck
             Wait-ForUser
         }
         "21" {
-            Export-SetupConfigTemplate
+            Update-AllWingetPackages
             Wait-ForUser
         }
         "22" {
-            Show-HardwareRecommendations
+            Export-SetupConfigTemplate
             Wait-ForUser
         }
         "23" {
-            Invoke-DeepCoolDigitalDiagnostics
+            Show-HardwareRecommendations
             Wait-ForUser
         }
         "24" {
-            Install-DeepCoolDigitalSoftware
+            Invoke-DeepCoolDigitalDiagnostics
             Wait-ForUser
         }
         "25" {
-            $backupConfiguration = Get-BackupConfig
-            Invoke-BackupFromConfiguration -Configuration $backupConfiguration
+            Install-DeepCoolDigitalSoftware
             Wait-ForUser
         }
         "26" {
             $backupConfiguration = Get-BackupConfig
-            Invoke-RestoreFromConfiguration -Configuration $backupConfiguration
+            Invoke-BackupFromConfiguration -Configuration $backupConfiguration
             Wait-ForUser
         }
         "27" {
-            Export-BackupConfigTemplate
+            $backupConfiguration = Get-BackupConfig
+            Invoke-RestoreFromConfiguration -Configuration $backupConfiguration
             Wait-ForUser
         }
         "28" {
+            Export-BackupConfigTemplate
+            Wait-ForUser
+        }
+        "29" {
             $configuration = Get-HardwareAdaptiveSetupConfiguration -Path $ConfigPath
             Invoke-SetupConfiguration -Configuration $configuration
             Wait-ForUser
